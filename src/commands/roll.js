@@ -35,14 +35,12 @@ const execute = async interaction => {
 		return
 	}
 
-	if(sort) {
-		results.sort()
-	}
+	const displayResults = (sort) ? results.map(subResult => subResult.sort()) : results;
 
 	const message = []
 
 	message.push(`🎲 ${dice}`)
-	message.push(`[${results.join('][')}]`)
+	message.push(`[${displayResults.join('][')}]`)
 
 	if(displaySum) {
 		const subSum = results.map(subResult => subResult.reduce((carry, current) => carry + current));
