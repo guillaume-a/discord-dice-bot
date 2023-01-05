@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, codeBlock } = require('discord.js');
 //const wait = require('node:timers/promises').setTimeout;
 
 const data = new SlashCommandBuilder()
@@ -30,6 +30,8 @@ const execute = async interaction => {
 
 	const results = parseDice(dice)
 
+	console.log(results)
+
 	if(results.length === 0) {
 		await interaction.reply({ content: "Error, no dices were rolled", ephemeral});
 		return
@@ -41,17 +43,20 @@ const execute = async interaction => {
 
 	const message = []
 
-	message.push(`Rolling [${dice}]`)
-	message.push(`Dice [${results.join(', ')}]`)
+	message.push(`🎲 ${dice}`)
+	message.push(`[${results.join('][')}]`)
 
 	if(displaySum) {
-		const sum = results.reduce((carry, current) => carry + current);
-		message.push(`Total [${sum}]`)
+		const subSum = results.map(subResult => subResult.reduce((carry, current) => carry + current));
+		message.push(`Sub-total ${subSum}`)
+
+		const sum = subSum.reduce((carry, current) => carry + current)
+		message.push(`Total ${sum}`)
 	}
 
 
 	const reply = { 
-		content: message.join(' | '), 
+		content: codeBlock(message.join("\n")),
 		ephemeral
 	}
 
@@ -101,12 +106,15 @@ const parseDice = values => {
 			return;
 		}
 
+		const subResults = []
 		const matches = regex.exec(die)
 		//console.log(matches)
 
 		for(let i=0;i<parseInt(matches[1]);i++) {
-			results.push(rollDie(parseInt(matches[2])))
+			subResults.push(rollDie(parseInt(matches[2])))
 		}
+
+		results.push(subResults)
 	})
 
 	// handle manual additions
@@ -115,7 +123,9 @@ const parseDice = values => {
 			return;
 		}
 
-		results.push(parseInt(die))
+		const subResults = []
+		subResults.push(parseInt(die))
+		results.push(subResults)
 	})
 
 	return results
