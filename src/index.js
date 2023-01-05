@@ -8,7 +8,6 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 
-
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -48,50 +47,28 @@ client.on(Events.InteractionCreate, async interaction => {
 	}    
 });
 
-/*
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isButton()) return;
 
+    const commandName = interaction.message.interaction.commandName;
+	const command = interaction.client.commands.get(commandName);
 
-	console.log(interaction.message);
+	if (!command) {
+		console.error(`No command matching ${commandName} was found.`);
+		return;
+	}
 
-    interaction.reply(interaction.message.content)
-    await interaction.message.delete()
+	if (!command.interact) {
+		console.error(`No interact handler for command ${commandName} was found.`);
+		return;
+	}
+
+	try {
+		await command.interact(interaction);
+	} catch (error) {
+		console.error(error);
+		await interaction.reply({ content: 'There was an error while executing this interaction!', ephemeral: true });
+	}    
 });
-*/
 
 client.login(process.env.BOT_TOKEN);
-
-/*
-client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-});
-*/
-
-/*
-client.on('interactionCreate', async interaction => {
-  if (!interaction.isChatInputCommand()) return;
-
-  if (interaction.commandName === 'roll') {
-    roll(interaction)
-  }
-});
-*/
-
-/*
-const roll = async interaction => {
-    console.log(interaction);
-    const dices = [];
-
-    for(let i = 0; i<10;i++) {
-        dices.push(getRoll());
-    }
-
-    await interaction.reply('Dice roll : ' + dices.join(', '));
-}
-
-const getRoll = () => {
-    return parseInt(Math.random() * 20 + 1)
-}
-*/
-

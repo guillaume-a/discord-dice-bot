@@ -1,5 +1,5 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, codeBlock } = require('discord.js');
-//const wait = require('node:timers/promises').setTimeout;
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, codeBlock } = require('discord.js');
+const wait = require('node:timers/promises').setTimeout;
 
 const data = new SlashCommandBuilder()
 	.setName('roll')
@@ -30,8 +30,6 @@ const execute = async interaction => {
 
 	const results = parseDice(dice)
 
-	console.log(results)
-
 	if(results.length === 0) {
 		await interaction.reply({ content: "Error, no dices were rolled", ephemeral});
 		return
@@ -60,32 +58,29 @@ const execute = async interaction => {
 		ephemeral
 	}
 
-	/*
 	if(ephemeral) {
 		const row = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
-					.setCustomId('secondary')
+					.setCustomId('reveal')
 					.setLabel('Reveal')
-					.setStyle(ButtonStyle.Primary),
+					.setStyle(ButtonStyle.Secondary)
 			);
 
 		reply.components = [row]
 	}
-	*/
 
-	/*
-	const embed = new EmbedBuilder()
-	.setColor(0x0099FF)
-	.setTitle('Some title')
-	.setURL('https://discord.js.org')
-	.setDescription('Some description here');
-	reply.embeds = [embed]
-	*/
-
-
+	//await interaction.reply()//🌑 🌒 🌓 🌔 🌕 🌖 🌗 🌘 
 	await interaction.reply(reply);
 } 
+
+const interact = async interaction => {
+	if (!interaction.isButton()) return;
+
+	if(interaction.customId === 'reveal') {
+		await interaction.reply(interaction.message.content)
+	}
+}
 
 function isInt(value) {
 	return (
@@ -108,7 +103,6 @@ const parseDice = values => {
 
 		const subResults = []
 		const matches = regex.exec(die)
-		//console.log(matches)
 
 		for(let i=0;i<parseInt(matches[1]);i++) {
 			subResults.push(rollDie(parseInt(matches[2])))
@@ -140,4 +134,5 @@ const rollDie = faces => {
 module.exports = {
 	data,
 	execute,
+	interact,
 };
